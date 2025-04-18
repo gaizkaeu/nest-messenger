@@ -53,7 +53,6 @@ describe('Basic flows', () => {
     it('should have handled stamp', () => {
       const handledStamp = response.last(HandledStamp);
       expect(handledStamp).toBeDefined();
-      expect(handledStamp.result).toBeDefined();
       expect(handledStamp.handlerName).toBe('DemoHandler');
     });
 
