@@ -1,6 +1,6 @@
 {
   "name": "@gelizagarate/nest-messenger",
-  "version": "0.0.1-rc",
+  "version": "0.0.1-rc.0",
   "license": "MIT",
   "scripts": {
     "test": "jest",
@@ -13,7 +13,8 @@
     "publish:npm": "npm publish --access public",
     "prerelease": "npm run build",
     "release": "release-it",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "prepare": "husky"
   },
   "publishConfig": {
     "access": "public"
