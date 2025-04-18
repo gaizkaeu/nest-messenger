@@ -15,6 +15,7 @@ import { DemoHandler } from './cqrs/handler/demo.handler';
           SendMessageMiddleware,
           HandleMessageMiddleware,
         ],
+        imports: [],
       },
     ]),
   ],

@@ -3,9 +3,10 @@ import { DiscoveryService, Reflector } from '@nestjs/core';
 import { MESSAGE_HANDLER_METADATA } from '../decorators/message-handler.decorator';
 import { Envelope } from '../envelope/envelope';
 import { MessageHandler } from '../interfaces/message-handler.interface';
+import { Locator } from '../interfaces/locator.interface';
 
 @Injectable()
-export class MessageHandlerRegistry implements OnModuleInit {
+export class MessageHandlerRegistry implements OnModuleInit, Locator {
   private handlers = new Map<Function, MessageHandler>();
 
   constructor(

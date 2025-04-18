@@ -1,41 +1,34 @@
-import { DynamicModule, Global, Module, Provider, Type } from '@nestjs/common';
+import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
+import { BusModule } from './bus/bus.module';
+import { BusDefinitionSchema } from './schema/bus-definition.schema';
 import { DiscoveryModule } from '@nestjs/core';
-import { ModuleRef } from '@nestjs/core';
-import { MessageBus } from './bus/message-bus';
 import { MessageHandlerRegistry } from './locators/message-handler.locator';
 import { SyncTransport } from './transports/sync.transport';
-import { Middleware } from './interfaces/middleware.interface';
-import { AddBusStampMiddleware } from './middlewares/add_bus_stamp.middleware';
-import { SendMessageMiddleware } from './middlewares/send_message.middleware';
-import { HandleMessageMiddleware } from './middlewares/handle_message.middleware';
-
-export interface BusConfig {
-  name: string;
-  middlewares: Type<Middleware>[];
-}
 
 @Global()
 @Module({})
 export class MessengerModule {
-  static register(buses: BusConfig[]): DynamicModule {
+  static register(buses: BusDefinitionSchema[]): DynamicModule {
+    const busModules = buses.map((bus) =>
+      BusModule.register(
+        bus.name,
+        bus.middlewares,
+        [SyncTransport],
+        MessageHandlerRegistry,
+        [DiscoveryModule, ...bus.imports],
+      ),
+    );
+
     const busTokens = buses.map(
       (bus) => `MESSAGE_BUS_${bus.name.toUpperCase()}`,
     );
 
-    const busProviders: Provider[] = buses.map((bus) => ({
-      provide: `MESSAGE_BUS_${bus.name.toUpperCase()}`,
-      useFactory: (moduleRef: ModuleRef) => {
-        return new MessageBus(moduleRef, bus.middlewares, bus.name);
-      },
-      inject: [ModuleRef],
-    }));
-
     const busMapProvider: Provider = {
       provide: 'MESSAGE_BUSES',
-      useFactory: (...buses: MessageBus[]) => {
-        const map = new Map<string, MessageBus>();
-        buses.forEach((bus, idx) => {
-          map.set(buses[idx].name, bus);
+      useFactory: (...instances) => {
+        const map = new Map<string, any>();
+        buses.forEach((bus, i) => {
+          map.set(bus.name, instances[i]);
         });
         return map;
       },
@@ -44,22 +37,9 @@ export class MessengerModule {
 
     return {
       module: MessengerModule,
-      imports: [DiscoveryModule],
-      providers: [
-        SyncTransport,
-        MessageHandlerRegistry,
-        AddBusStampMiddleware,
-        SendMessageMiddleware,
-        HandleMessageMiddleware,
-        ...busProviders,
-        busMapProvider,
-      ],
-      exports: [
-        ...busProviders,
-        SyncTransport,
-        MessageHandlerRegistry,
-        'MESSAGE_BUSES',
-      ],
+      imports: [DiscoveryModule, ...busModules],
+      providers: [MessageHandlerRegistry, busMapProvider],
+      exports: [...busModules, busMapProvider],
     };
   }
 }
