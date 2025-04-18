@@ -15,6 +15,9 @@
     "release": "release-it",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@commitlint/cli": "19.8.0",
     "@commitlint/config-angular": "19.8.0",
