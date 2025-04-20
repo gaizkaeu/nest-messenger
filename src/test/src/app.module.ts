@@ -7,7 +7,7 @@ import { DemoHandler } from './cqrs/handler/demo.handler';
 
 @Module({
   imports: [
-    MessengerModule.register([
+    MessengerModule.forRoot([
       {
         name: 'default',
         middlewares: [

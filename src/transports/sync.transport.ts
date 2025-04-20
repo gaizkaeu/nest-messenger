@@ -1,13 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Transport } from '../interfaces/transport.interface';
+import { Sender } from '../interfaces/transport.interface';
 import { Envelope } from '../envelope/envelope';
 import { MessageBus } from '../bus/message-bus';
 import { BusNameStamp } from '../stamps/bus-name.stamp';
 import { ReceivedStamp } from '../stamps/received.stamp';
 import { SentStamp } from '../stamps/sent.stamp';
+import { AsSender } from '../decorators/sender.decorator';
 
 @Injectable()
-export class SyncTransport implements Transport {
+@AsSender({
+  transport: 'sync',
+})
+export class SyncTransport implements Sender {
   constructor(
     @Inject('MESSAGE_BUSES')
     private readonly buses: Map<string, MessageBus>,
